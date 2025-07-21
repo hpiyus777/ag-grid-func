@@ -11,6 +11,7 @@ const tabs = [
   { key: "table", label: "Table", icon: <FaTable /> },
   { key: "chart", label: "Chart", icon: <FaChartPie /> },
   { key: "terms", label: "Terms", icon: <FaFileAlt /> },
+  { key: "additem", label: "Add Item", icon: <FaBars /> },
 ];
 
 const SidePanel: React.FC<SidePanelProps> = ({

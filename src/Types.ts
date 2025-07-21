@@ -103,4 +103,26 @@ export interface GroupedSection {
   items: GridItem[];
 }
 
+export interface Estimate {
+  id: string;
+  title: string;
+  customer: string;
+  estimateNumber: string;
+  total: number;
+  cost: number;
+  profit: number;
+  mu: number;
+  pm: string;
+  type: string;
+  status: string;
+  progress: number;
+  details: Record<string, any>;
+  createdAt: string;
+}
 
+export interface StatusConfig {
+  color: string;
+  icon: any;
+  bgColor: string;
+  textColor: string;
+}

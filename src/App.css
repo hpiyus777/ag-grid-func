@@ -75,3 +75,85 @@
   display: none !important;
 }
 
+
+
+
+.progress-report-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0 0 10px;
+  font-size: 1.5em;
+}
+
+.status-bar {
+  margin-bottom: 10px;
+}
+
+.step-label {
+  font-size: 0.8em;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.step-label.completed {
+  color: #1890ff;
+}
+
+.status-note {
+  color: #ff4d4f;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.details-section,
+.financials-section,
+.approval-section,
+.custom-fields-section {
+  border: 1px solid #e8e8e8;
+  padding: 15px;
+  border-radius: 4px;
+  background: #fff;
+}
+
+h3 {
+  margin: 0 0 10px;
+  font-size: 1.2em;
+  color: #1890ff;
+}
+
+.detail-item {
+  margin-bottom: 10px;
+}
+
+.detail-item label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.detail-item .ant-select,
+.detail-item .ant-input,
+.detail-item .ant-picker {
+  width: 100%;
+}
+
+.detail-item.total {
+  font-weight: bold;
+}
+
+.detail-item.total span {
+  margin-left: 10px;
+}

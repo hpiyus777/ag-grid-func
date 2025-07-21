@@ -14,8 +14,8 @@ export const useFetchData = () => {
     // debugger;
     try {
       setLoading(false);
-      const response = await fetch("/data.json");
-      // const response = await fetch("/dataShort.json");
+      // const response = await fetch("/data.json");
+      const response = await fetch("/dataShort.json");
       const responseData: ApiResponse = await response.json();
 
       if (

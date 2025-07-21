@@ -75,6 +75,111 @@
 
 // export default App;
 
+
+
+
+
+
+
+
+
+
+
+
+// import { useState } from "react";
+// import { Provider } from "react-redux";
+// import { BrowserRouter, Routes, Route } from "react-router-dom";
+// import { store } from "./Store/Store";
+
+// import SectionPieChart from "./components/chart/Chart";
+// import Terms from "./components/terms/Terms.tsx";
+// import SidePanel from "./components/SidePanel";
+
+// import "./App.css";
+// import DataGrid from "./components/table/DataGrid.tsx";
+// import Extra from "./components/table/Extra.tsx";
+// import AddItem from "./components/Progress/AddItem.tsx";
+// import { ProgressReport } from "./components/Progress/ProgressReport.tsx";
+
+// function MainLayout({
+//   selectedTab,
+//   setSelectedTab,
+// }: {
+//   selectedTab: string;
+//   setSelectedTab: (tab: string) => void;
+// }) {
+//   const renderContent = () => {
+//     switch (selectedTab) {
+//       case "chart":
+//         return (
+//           <>
+//             <SectionPieChart />
+//             <Extra />
+//           </>
+//         );
+//       case "terms":
+//         return <Terms />;
+//       case "additem":
+//         return <AddItem />;
+//       case "table":
+//       default:
+//         return (
+//           <>
+//             <DataGrid />
+//             <Extra />
+//           </>
+//         );
+//     }
+//   };
+
+//   return (
+//     <div className="h-screen text-black overflow-auto">
+//       <div className="flex min-h-screen overflow-auto">
+//         <SidePanel selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+//         <main className="flex-1 p-6 overflow-y-scroll h-screen">
+//           {renderContent()}
+//         </main>
+//       </div>
+//     </div>
+//   );
+// }
+
+// function App() {
+//   const [selectedTab, setSelectedTab] = useState("table");
+
+//   return (
+//     <Provider store={store}>
+//       <BrowserRouter>
+//         <Routes>
+//           <Route
+//             path="/"
+//             element={
+//               <MainLayout
+//                 selectedTab={selectedTab}
+//                 setSelectedTab={setSelectedTab}
+//               />
+//             }
+//           />
+
+//           <Route path="/chart" element={<SectionPieChart />} />
+
+//           <Route path="/terms" element={<Terms />} />
+//           <Route path="/additem" element={<AddItem />} />
+
+         
+//         <Route path="/progress-report/:id" element={<ProgressReport />} />
+//         </Routes>
+//       </BrowserRouter>
+//     </Provider>
+//   );
+// }
+
+// export default App;
+
+
+
+
+// App.tsx
 import { useState } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -87,6 +192,8 @@ import SidePanel from "./components/SidePanel";
 import "./App.css";
 import DataGrid from "./components/table/DataGrid.tsx";
 import Extra from "./components/table/Extra.tsx";
+import EstimatesDashboard from "./components/Progress/EstimatesDashboard.tsx";
+import { ProgressReportPage } from "./components/Progress/ProgressReportPage.tsx";
 
 function MainLayout({
   selectedTab,
@@ -106,6 +213,8 @@ function MainLayout({
         );
       case "terms":
         return <Terms />;
+      case "additem":
+        return <EstimatesDashboard />; // Use EstimatesDashboard here
       case "table":
       default:
         return (
@@ -145,10 +254,13 @@ function App() {
               />
             }
           />
-
-          <Route path="/chart" element={<SectionPieChart />} />
-
-          <Route path="/terms" element={<Terms />} />
+          <Route path="/additem" element={
+            <MainLayout
+              selectedTab="additem"
+              setSelectedTab={setSelectedTab}
+            />
+          } />
+          <Route path="/progress-report/:id" element={<ProgressReportPage />} />
         </Routes>
       </BrowserRouter>
     </Provider>
