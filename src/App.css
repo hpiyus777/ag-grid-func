@@ -1,0 +1,77 @@
+
+.hover-checkbox,
+.hover-drag {
+  visibility: hidden;
+  transition: visibility 0.2s ease;
+}
+
+.ag-row-hover .hover-checkbox,
+.ag-row-hover .hover-drag {
+  visibility: visible;
+}
+
+
+.data-grid-container.selection-active .hover-drag {
+  visibility: hidden !important;
+}
+
+.ag-row-hover .hover-drag {
+  visibility: visible;
+}
+
+.data-grid-container.selection-active
+  .ag-row:not(.ag-row-hover)
+  .hover-checkbox {
+  visibility: visible !important;
+}
+.data-grid-container.selection-active .ag-row-selected {
+  opacity: 0.8;
+}
+
+@keyframes animatedTextGradient {
+  to {
+    background-position: -200% center;
+  }
+}
+.scale-105 {
+  transform: scale(1.05);
+}
+.transition-all {
+  transition: all 0.2s ease;
+}
+.shadow-2xl {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.skeleton-loader {
+  background: linear-gradient(
+    90deg,
+    #1f2937 25%,
+    #374151 50%,
+    #1f2937 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite linear;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.ag-body-vertical-scroll-viewport {
+  overflow-y: auto;
+  scrollbar-width: none !important;
+  display: none !important;
+}
+
+.ag-body-vertical-scroll {
+  overflow-y: auto;
+  scrollbar-width: none !important;
+  display: none !important;
+}
+
