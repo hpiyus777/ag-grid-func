@@ -74,11 +74,6 @@ const DataGrid = React.memo(() => {
   );
 
   const handleSelectionChange = useRowSelection(gridRefs); //selcted row ni id lese and style update krse
-
-  //create new page ("add items") and in new page add a btn(add estimate) and when i clciked on btn so my common extra.tsx (sidebar) open and show form for itmes add (itmes details and all like img ) and once user add itmes and clcike save btn extra.tsx(sidebar) should close and user estimate details show in table (which i have provided comooon table ) and than when i clcik on any estimate create row by user in table so new page shold be open(proggresRepost) and in new page we have add progress report bar (which i'll  give u in img) and make it functional than bottom of progress bar we show itmes dteails and also make that details update and dlete with full functionaity and once its all done ..so make sure details will be updated in prevpage table (add estimate's table) and add on thing more in bottom of estimate page...show progress bar in estimate page and its functional on depedned on progress report wich we add in progress report page on first (i'll prvided img ) and show complet total progress on progress bar (wgich i'll also given as img ) ...and add use free apis from internet and make this funcuonality full working without and lag
-
-  //Create a new page ("add items"), and on the new page, add a button (add estimate), and when I clicked on the button, my common extra.TSX (sidebar) open and show a form for items to add (item details and all like img), and once the user adds items and clicks the save button, extra.TSX (sidebar) should close, and user estimate details should show in the table (which I have provided as a common table file which i use in my whole project), and then when I click on any estimate, a row should be created by the user in the table so a new page should be opened ("progress report"), and in the new page, we have to add a progress report bar (which I'll give you in an image) and make it functional. Then at the bottom of the progress bar, we show item details, and also make those details update and delete with full functionality, and once it's all done... so make sure details will be updated in the previous page table (add the estimate's table) and add one more thing in the bottom of the estimate page... Show a progress bar on the estimate page, and it's functional depending on the progress report, which we add to the progress report page first (I'll provide an image) and show the total progress on the progress bar (which I'll also give as an image)... and add the use of free APIs from the internet and make this functionality fully working without any lag.
-
   const handleDragEnd = (result: { source: any; destination: any }) => {
     const { source, destination } = result;
     if (!destination || !source) return;
@@ -330,7 +325,7 @@ const DataGrid = React.memo(() => {
               tables... !!!!!!!!!!!!!({visibleCount} of{" "}
               {filteredGroupedItems.length})
             </div>
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-black border-t-transparent" />
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
           </div>
         )}
       </div>

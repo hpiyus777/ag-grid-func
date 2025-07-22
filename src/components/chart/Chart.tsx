@@ -73,20 +73,18 @@ const ChartWithTable = ({ showMarkup = true }) => {
   // Chart configuration
   const chartOptions = {
     chart: {
-      type: "donut",
+      type: "donut" as "donut",
       height: 350,
     },
     labels: ["Total Quantity", "Total Unit Cost", "Total Value"],
     colors: ["#3B82F6", "#10B981", "#F59E0B"],
     legend: {
       show: true,
-      position: "bottom",
-      horizontalAlign: "center",
+      position: "bottom" as "bottom",
+      horizontalAlign: "center" as "center",
       fontSize: "14px",
       markers: {
-        width: 12,
-        height: 12,
-        radius: 6,
+        size: 12,
       },
     },
     tooltip: {

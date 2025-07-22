@@ -2,7 +2,7 @@ import React from "react";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import type { Estimate } from "../../Types";
 import { statusConfig } from "./statusConfig";
-
+import { Modal } from "antd";
 interface EstimateTableProps {
   estimates: Estimate[];
   onView: (estimate: Estimate) => void;
@@ -15,7 +15,20 @@ export const EstimateTable: React.FC<EstimateTableProps> = ({
   onView,
   onEdit,
   onDelete,
-}) => {
+})  => {
+  // ✅ Confirm delete handler
+  const showDeleteConfirm = (id: string) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this estimate?",
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        onDelete(id);
+      },
+    });
+  };
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -85,21 +98,21 @@ export const EstimateTable: React.FC<EstimateTableProps> = ({
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => onView(estimate)}
-                      className="p-1 hover:bg-gray-100 rounded"
+                      className="cursor-pointer p-1 hover:bg-gray-100 rounded"
                       title="View Progress Report"
                     >
                       <Eye className="w-4 h-4 text-gray-600" />
                     </button>
                     <button
                       onClick={() => onEdit(estimate)}
-                      className="p-1 hover:bg-gray-100 rounded"
+                      className="cursor-pointer p-1 hover:bg-gray-100 rounded"
                       title="Edit"
                     >
                       <Edit className="w-4 h-4 text-gray-600" />
                     </button>
-                    <button
-                      onClick={() => onDelete(estimate.id)}
-                      className="p-1 hover:bg-red-50 rounded"
+                 <button
+                      onClick={() => showDeleteConfirm(estimate.id)}
+                      className="cursor-pointer p-1 hover:bg-red-50 rounded"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4 text-red-600" />

@@ -25,14 +25,10 @@ export const ProgressReportPage: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this estimate?")) {
-      setEstimates((prev) => prev.filter((est) => est.id !== id));
-      navigate("/additem");
-    }
-  };
-
-  const handleEdit = (estimate: Estimate) => {
-    navigate("/additem", { state: { editingEstimate: estimate } });
+    setEstimates((prev) => prev.filter((est) => est.id !== id));
+    // if (window.confirm("Are you sure you want to delete this estimate?")) {
+    //   navigate("/additem");
+    // }
   };
 
   if (!estimate) {
@@ -59,7 +55,6 @@ export const ProgressReportPage: React.FC = () => {
       onBack={handleBack}
       onUpdate={handleUpdate}
       onDelete={handleDelete}
-      onEdit={handleEdit}
     />
   );
 };

@@ -4,7 +4,7 @@ export const useScrollLoading = (
   containerRef: React.RefObject<HTMLDivElement>,
   visibleCount: number,
   totalCount: number,
-  globalKey: string,
+  _globalKey: string,
   increaseCount: () => void,
   expandedSections: Record<string, boolean> // Add this parameter
 ) => {

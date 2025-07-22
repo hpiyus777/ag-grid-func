@@ -32,6 +32,7 @@ const EstimatesDashboard: React.FC = () => {
   };
 
   const updateEstimate = (id: string, updates: Partial<Estimate>) => {
+    // debugger
     setEstimates((prev) =>
       prev.map((est) => (est.id === id ? { ...est, ...updates } : est))
     );
@@ -41,12 +42,10 @@ const EstimatesDashboard: React.FC = () => {
   };
 
   const deleteEstimate = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this estimate?")) {
-      setEstimates((prev) => prev.filter((est) => est.id !== id));
-      if (selectedEstimate && selectedEstimate.id === id) {
-        setCurrentView("dashboard");
-        setSelectedEstimate(null);
-      }
+    setEstimates((prev) => prev.filter((est) => est.id !== id));
+    if (selectedEstimate && selectedEstimate.id === id) {
+      setCurrentView("dashboard");
+      setSelectedEstimate(null);
     }
   };
 
@@ -97,10 +96,6 @@ const EstimatesDashboard: React.FC = () => {
         }}
         onUpdate={updateEstimate}
         onDelete={deleteEstimate}
-        onEdit={(estimate) => {
-          setEditingEstimate(estimate);
-          setCurrentView("dashboard");
-        }}
       />
     );
   }
@@ -170,6 +165,7 @@ const EstimatesDashboard: React.FC = () => {
 
       <EstimateSidebar
         isOpen={sidebarOpen}
+        css="shadow-lg transform transition-transform duration-150 will-change-transform"
         onClose={() => {
           setSidebarOpen(false);
           setEditingEstimate(null);

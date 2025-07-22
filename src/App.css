@@ -157,3 +157,8 @@ h3 {
 .detail-item.total span {
   margin-left: 10px;
 }
+
+
+button{
+  cursor: pointer !important;
+}

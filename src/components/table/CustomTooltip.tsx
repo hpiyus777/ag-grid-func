@@ -35,10 +35,12 @@
 
 // CustomTooltip.tsx (for AG Grid's tooltipComponent)
 
-import React from "react";
-import { TooltipProps } from "ag-grid-community";
 
-const CustomTooltip = (props: TooltipProps) => {
+interface CustomTooltipProps {
+  value?: string;
+}
+
+const CustomTooltip = (props: CustomTooltipProps) => {
   const { value } = props;
 
   return (

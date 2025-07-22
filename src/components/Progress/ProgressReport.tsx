@@ -10,24 +10,26 @@ import {
 } from "lucide-react";
 import type { Estimate } from "../../Types";
 import { statusConfig } from "./statusConfig";
-
+import { EstimateSidebar } from "./EstimateSidebar";
+import { Modal } from "antd";
 interface ProgressReportProps {
   estimate: Estimate;
   onBack: () => void;
   onUpdate: (id: string, updates: Partial<Estimate>) => void;
   onDelete: (id: string) => void;
-  onEdit: (estimate: Estimate) => void;
 }
+
+type EstimateFormInput = Omit<Estimate, "id" | "createdAt" | "image">;
 
 export const ProgressReport: React.FC<ProgressReportProps> = ({
   estimate,
   onBack,
   onUpdate,
   onDelete,
-  onEdit,
 }) => {
   const [progress, setProgress] = useState(estimate.progress || 0);
   const [currentEstimate, setCurrentEstimate] = useState(estimate);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const mainStatuses: Estimate["status"][] = [
     "Completed",
@@ -49,11 +51,40 @@ export const ProgressReport: React.FC<ProgressReportProps> = ({
   };
 
   const handleEdit = () => {
-    onEdit(currentEstimate);
+    console.log("sideedit:", currentEstimate);
+    setSidebarOpen(true);
   };
 
   const handleDelete = () => {
     onDelete(estimate.id);
+  };
+
+  const handleCloseSidebar = () => {
+    setSidebarOpen(false);
+  };
+
+  const handleSaveEstimate = (data: EstimateFormInput) => {
+    const updatedEstimate = {
+      ...currentEstimate,
+      ...data,
+    };
+    setCurrentEstimate(updatedEstimate);
+    onUpdate(estimate.id, data);
+    setSidebarOpen(false);
+    console.log("Estimate updated:", updatedEstimate);
+  };
+
+  const showDeleteConfirm = (id: string) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this estimate?",
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        onDelete(estimate.id);
+      },
+    });
   };
 
   return (
@@ -87,11 +118,11 @@ export const ProgressReport: React.FC<ProgressReportProps> = ({
                 <Edit className="w-5 h-5" />
               </button>
               <button
-                onClick={handleDelete}
-                className="p-2 hover:bg-red-50 rounded-lg text-red-600"
-                title="Delete Estimate"
+                onClick={() => showDeleteConfirm(estimate.id)}
+                className="p-1 hover:bg-red-50 rounded"
+                title="Delete"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-5 h-5 text-red-600" />
               </button>
               <button className="p-2 hover:bg-gray-100 rounded-lg">
                 <MoreVertical className="w-5 h-5" />
@@ -314,6 +345,16 @@ export const ProgressReport: React.FC<ProgressReportProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Sidebar Component */}
+      <EstimateSidebar
+        isOpen={sidebarOpen}
+        onClose={handleCloseSidebar}
+        estimate={currentEstimate}
+        onSave={handleSaveEstimate}
+      />
     </div>
   );
 };
+
+export default ProgressReport;
