@@ -145,21 +145,21 @@ export interface TimeCard {
   breaks?: Break[];
 }
 
-export interface CrewCard {
-  id: number;
-  employees?: string;
-  supervisor?: string;
-  project?: string;
-  costCode?: string;
-  notes?: string;
-  clockInTime?: string;
-  clockOutTime?: string;
-  status?: "clocked-in" | "break" | "resumed" | "clocked-out";
-  lastBreakStart?: string;
-  lastBreakEnd?: string;
-  breaks: Break[];
-  date?: string;
-}
+// export interface CrewCard {
+//   id: number;
+//   employees?: string;
+//   supervisor?: string;
+//   project?: string;
+//   costCode?: string;
+//   notes?: string;
+//   clockInTime?: string;
+//   clockOutTime?: string;
+//   status?: "clocked-in" | "break" | "resumed" | "clocked-out";
+//   lastBreakStart?: string;
+//   lastBreakEnd?: string;
+//   breaks: Break[];
+//   date?: string;
+// }
 
 export interface Break {
   start: string;
@@ -195,15 +195,15 @@ export interface ActiveTimer {
 
 export interface TimeCardContextType {
   timeCards: TimeCard[];
-  crewCards: CrewCard[] ;
+  crewCards: CrewCard[];
   crewSheets: CrewSheet[];
   activeTimers: Record<number, ActiveTimer>;
   addTimeCard: (
     timeCard: Omit<TimeCard, "id" | "date" | "totalHours">
   ) => TimeCard;
   updateTimeCard: (id: number, updates: Partial<TimeCard>) => void;
-  addCrewCard: (crewCard: Omit<CrewCard, "id" | "date" | "breaks">) => CrewCard;
-  updateCrewCard: (id: number, updates: Partial<CrewCard>) => void;
+   addCrewCard: (card: CrewCard) => CrewCard;
+   updateCrewCard: (id: string, updatedCard: CrewCard) => void;
   addCrewSheet: (crewSheet: Omit<CrewSheet, "id" | "date">) => CrewSheet;
   startTimer: (cardId: number, type: "timecard" | "crewcard") => void;
   stopTimer: (cardId: number) => number;
@@ -248,20 +248,20 @@ export interface FormData {
   employeeName?: string;
 }
 
-export interface CrewCard {
-  id: number;
-  employees?: string;
-  supervisor?: string;
-  project?: string;
-  costCode?: string;
-  notes?: string;
-  clockInTime?: string;
-  status?: "clocked-in" | "break" | "resumed" | "clocked-out";
-  lastBreakStart?: string;
-  lastBreakEnd?: string;
-  clockOutTime?: string;
-  newCrewCard?: boolean;
-}
+// export interface CrewCard {
+//   id: number;
+//   employees?: string;
+//   supervisor?: string;
+//   project?: string;
+//   costCode?: string;
+//   notes?: string;
+//   clockInTime?: string;
+//   status?: "clocked-in" | "break" | "resumed" | "clocked-out";
+//   lastBreakStart?: string;
+//   lastBreakEnd?: string;
+//   clockOutTime?: string;
+//   newCrewCard?: boolean;
+// }
 
 export interface TimeCard {
   id?: number;
@@ -286,6 +286,57 @@ export interface DisplayCard {
   displayLocation: string;
   displayStatus: string;
   DisplayCard: string;
+  
 }
 
 
+export interface Timer {
+
+} 
+
+// Types.ts
+// export interface FormData {
+//   workDate: string;
+//   employees: string;
+//   supervisor: string;
+//   project: string;
+//   costCode: string;
+//   notes: string;
+// }
+
+export interface CrewCardHistory {
+  timestamp: string;
+  action: 'clock-in' | 'break' | 'resume' | 'clock-out';
+  employee: string;
+  project?: string;
+  costCode?: string;
+}
+
+export interface CrewCard {
+  id: string;
+  date: string;
+  employees: string;
+  supervisor: string;
+  project: string;
+  costCode: string;
+  notes: string;
+  status: 'idle' | 'clocked-in' | 'break' | 'resumed' | 'clocked-out';
+  clockInTime?: string;
+  clockOutTime?: string;
+  lastBreakStart?: string;
+  lastBreakEnd?: string;
+  totalBreakTime?: number;
+  history: CrewCardHistory[];
+  injury?: boolean;
+  totalHours?: number;
+}
+
+// export interface DisplayCard {
+//   id: string | number;
+//   type: 'timecard' | 'crewcard' | 'crewsheet';
+//   displayName: string;
+//   displayDate: string;
+//   displayLocation: string;
+//   displayStatus: string;
+//   displayDetails?: string;
+// }

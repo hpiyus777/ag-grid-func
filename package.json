@@ -26,6 +26,7 @@
     "ag-grid-react": "^34.0.0",
     "antd": "^5.26.4",
     "apexcharts": "^5.2.0",
+    "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.516.0",
     "primeicons": "^7.0.0",
@@ -35,6 +36,7 @@
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.16.0",
+    "react-leaflet": "^4.2.1",
     "react-quill": "^2.0.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.30.1",
@@ -46,6 +48,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@types/leaflet": "^1.9.20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react-swc": "^3.9.0",

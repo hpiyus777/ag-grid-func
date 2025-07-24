@@ -5,7 +5,8 @@ import TimeCardForm from "./TimeCardForm";
 import CrewCardForm from "./CrewCardForm";
 import CrewSheetForm from "./CrewSheetForm";
 import { useTimeCard } from "./TimeCardContext";
-import type { DisplayCard } from "../../Types";
+import Map  from "./Map";
+import type { DisplayCard, CrewCard } from "../../Types";
 
 const TimeCardDashboard: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -13,21 +14,25 @@ const TimeCardDashboard: React.FC = () => {
   );
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
-  const { timeCards, crewCards, crewSheets, removeTimeCard } = useTimeCard();
+  const { timeCards, crewCards, crewSheets, removeTimeCard, removeCrewCard } =
+    useTimeCard();
   const [selectedCard, setSelectedCard] = useState<DisplayCard | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [deletingCardId, setDeletingCardId] = useState<string | number | null>(
     null
   );
 
-  // Listen for updates
   useEffect(() => {
     const handleUpdate = () => {
       setRefreshKey((prev) => prev + 1);
     };
 
     window.addEventListener("timeCardsUpdated", handleUpdate);
-    return () => window.removeEventListener("timeCardsUpdated", handleUpdate);
+    window.addEventListener("crewCardsUpdated", handleUpdate);
+    return () => {
+      window.removeEventListener("timeCardsUpdated", handleUpdate);
+      window.removeEventListener("crewCardsUpdated", handleUpdate);
+    };
   }, []);
 
   const formatDate = (dateString: string): string => {
@@ -47,7 +52,19 @@ const TimeCardDashboard: React.FC = () => {
       .padStart(2, "0")}`;
   };
 
-  // Use a generic type that extends a base card type with required properties
+  const calculateCrewCardHours = (card: CrewCard): string => {
+    if (!card.clockInTime) return "00:00";
+
+    const start = new Date(card.clockInTime).getTime();
+    const end = card.clockOutTime
+      ? new Date(card.clockOutTime).getTime()
+      : Date.now();
+    const breakTime = card.totalBreakTime || 0;
+
+    const totalMs = end - start - breakTime;
+    return formatTime(totalMs);
+  };
+
   type BaseCard = {
     id: string | number;
     date: string;
@@ -77,10 +94,42 @@ const TimeCardDashboard: React.FC = () => {
     const storedTimeCards = JSON.parse(
       localStorage.getItem("timeCards") || "[]"
     );
+    const storedCrewCards = JSON.parse(
+      localStorage.getItem("crewCards") || "[]"
+    );
+
     const allCards: DisplayCard[] = [];
     const seenIds = new Set<string | number>();
 
-    // Add active time cards from context
+    // Add crew cards from localStorage and context
+    const allCrewCards = [...crewCards, ...storedCrewCards];
+
+    allCrewCards.forEach((card: CrewCard) => {
+      if (!seenIds.has(card.id) && card.date === selectedDate) {
+        seenIds.add(card.id);
+
+        const displayStatus =
+          card.status === "clocked-out"
+            ? `${calculateCrewCardHours(card)} Hrs`
+            : card.status === "clocked-in"
+            ? "Clocked In"
+            : card.status === "break"
+            ? "On Break"
+            : "Working";
+
+        allCards.push({
+          id: card.id,
+          type: "crewcard" as const,
+          displayName: card.employees || "Unknown",
+          displayDate: formatDate(card.date),
+          displayLocation: card.project || "No Project",
+          displayStatus,
+          displayDetails: `Supervisor: ${card.supervisor || "N/A"}`,
+        });
+      }
+    });
+
+    // Add time cards
     filterCardsByDate(timeCards, selectedDate).forEach((card) => {
       if (!seenIds.has(card.id)) {
         seenIds.add(card.id);
@@ -98,7 +147,7 @@ const TimeCardDashboard: React.FC = () => {
       }
     });
 
-    // Add stored time cards (only if not already in active cards)
+    // Add stored time cards
     filterCardsByDate(storedTimeCards, selectedDate).forEach((card) => {
       if (!seenIds.has(card.id)) {
         seenIds.add(card.id);
@@ -109,21 +158,6 @@ const TimeCardDashboard: React.FC = () => {
           displayDate: formatDate(card.date),
           displayLocation: card.project || "No Project",
           displayStatus: `${formatTime(card.totalHours)} Hrs`,
-        });
-      }
-    });
-    console.log(storedTimeCards, "jhh");
-    // Add crew cards
-    filterCardsByDate(crewCards, selectedDate).forEach((card) => {
-      if (!seenIds.has(card.id)) {
-        seenIds.add(card.id);
-        allCards.push({
-          id: card.id,
-          type: "crewcard" as const,
-          displayName: card.supervisor || "Unknown",
-          displayDate: formatDate(card.date),
-          displayLocation: card.project || "No Project",
-          displayStatus: `Crew: ${card.employees?.split(",").length || 1} Emp`,
         });
       }
     });
@@ -157,7 +191,10 @@ const TimeCardDashboard: React.FC = () => {
 
   const clockedInEmployees = timeCards.filter(
     (card) => card.status === "active"
+    
   );
+
+  console.log("Clocked In Employees:", clockedInEmployees);
 
   const handleCardClick = (card: DisplayCard) => {
     setSelectedCard(card);
@@ -174,22 +211,52 @@ const TimeCardDashboard: React.FC = () => {
       onOk: async () => {
         setDeletingCardId(cardId);
 
-        // Simulate async operation
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         try {
-          // Remove from localStorage
-          const storedCards = JSON.parse(
-            localStorage.getItem("timeCards") || "[]"
-          );
-          const updatedCards = storedCards.filter(
-            (card: any) => card.id !== cardId
-          );
-          localStorage.setItem("timeCards", JSON.stringify(updatedCards));
+          if (cardType === "crewcard") {
+            // Remove from crew cards localStorage
+            const storedCards = JSON.parse(
+              localStorage.getItem("crewCards") || "[]"
+            );
+            const updatedCards = storedCards.filter(
+              (card: any) => card.id !== cardId
+            );
+            localStorage.setItem("crewCards", JSON.stringify(updatedCards));
 
-          // Remove from context if exists
-          if (removeTimeCard) {
-            removeTimeCard(cardId);
+            // Remove from context if exists
+            if (removeCrewCard) {
+              removeCrewCard(cardId);
+            }
+
+            // Clear current crew card if it's the one being deleted
+            const currentCard = localStorage.getItem("currentCrewCard");
+            if (currentCard) {
+              const parsed = JSON.parse(currentCard);
+              if (parsed.card.id === cardId) {
+                localStorage.removeItem("currentCrewCard");
+              }
+            }
+
+            // Dispatch event for crew cards
+            window.dispatchEvent(new Event("crewCardsUpdated"));
+          } else if (cardType === "timecard") {
+            // Remove from time cards localStorage
+            const storedCards = JSON.parse(
+              localStorage.getItem("timeCards") || "[]"
+            );
+            const updatedCards = storedCards.filter(
+              (card: any) => card.id !== cardId
+            );
+            localStorage.setItem("timeCards", JSON.stringify(updatedCards));
+
+            // Remove from context if exists
+            if (removeTimeCard) {
+              removeTimeCard(cardId);
+            }
+
+            // Dispatch event for time cards
+            window.dispatchEvent(new Event("timeCardsUpdated"));
           }
 
           // Update local state immediately
@@ -199,9 +266,6 @@ const TimeCardDashboard: React.FC = () => {
 
           // Force refresh
           setRefreshKey((prev) => prev + 1);
-
-          // Dispatch event for other components
-          window.dispatchEvent(new Event("timeCardsUpdated"));
         } catch (error) {
           console.error("Error deleting card:", error);
         } finally {
@@ -213,6 +277,15 @@ const TimeCardDashboard: React.FC = () => {
 
   const closeModal = () => {
     setSelectedCard(null);
+  };
+
+  // Get crew card details for modal
+  const getCrewCardDetails = (cardId: string | number): CrewCard | null => {
+    const allCrewCards = [
+      ...crewCards,
+      ...JSON.parse(localStorage.getItem("crewCards") || "[]"),
+    ];
+    return allCrewCards.find((card: CrewCard) => card.id === cardId) || null;
   };
 
   return (
@@ -342,6 +415,11 @@ const TimeCardDashboard: React.FC = () => {
                         <div className="text-sm font-medium text-blue-600 mt-1">
                           {card.displayStatus}
                         </div>
+                        {card.displayDetails && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {card.displayDetails}
+                          </div>
+                        )}
                       </div>
                       <button
                         className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
@@ -384,7 +462,7 @@ const TimeCardDashboard: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col gap-6">
           {activeTab === "dashboard" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 ">
+            <div className="grid grid-cols-1  gap-6 mt-8  ">
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="font-semibold text-lg mb-4 text-gray-800">
                   Who Is Clocked In
@@ -421,7 +499,8 @@ const TimeCardDashboard: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-lg shadow-lg p-6 flex items-center justify-center">
-                <span className="text-gray-400">[Map Placeholder]</span>
+               
+                <Map />
               </div>
             </div>
           )}
@@ -432,19 +511,21 @@ const TimeCardDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal for Details - Simplified without delete/cancel buttons */}
+      {/* Modal for Details */}
       {selectedCard && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 bgforbg flex items-center justify-center z-50"
           onClick={closeModal}
         >
           <div
-            className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md"
+            className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">
-                Card Details
+                {selectedCard.type === "crewcard"
+                  ? "Crew Card Details"
+                  : "Card Details"}
               </h2>
               <button
                 className="text-gray-400 hover:text-gray-600"
@@ -465,24 +546,186 @@ const TimeCardDashboard: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="space-y-3">
-              <div>
-                <span className="text-sm text-gray-600">Name:</span>
-                <p className="font-medium">{selectedCard.displayName}</p>
+
+            {selectedCard.type === "crewcard" ? (
+              (() => {
+                const crewCard = getCrewCardDetails(selectedCard.id);
+                if (!crewCard) return <div>Card details not found</div>;
+
+                return (
+                  <div className="space-y-4">
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-sm text-gray-600">Employee:</span>
+                        <p className="font-medium">{crewCard.employees}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">
+                          Supervisor:
+                        </span>
+                        <p className="font-medium">
+                          {crewCard.supervisor || "N/A"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Date:</span>
+                        <p className="font-medium">
+                          {formatDate(crewCard.date)}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Project:</span>
+                        <p className="font-medium">{crewCard.project}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">
+                          Cost Code:
+                        </span>
+                        <p className="font-medium">{crewCard.costCode}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Status:</span>
+                        <p className="font-medium capitalize">
+                          {crewCard.status}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Employee Log */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h3 className="font-semibold mb-3">Employee Log</h3>
+                      <table className="w-full">
+                        <thead>
+                          <tr className="text-left text-sm text-gray-600 border-b">
+                            <th className="pb-2">Employee</th>
+                            <th className="pb-2">Counter</th>
+                            <th className="pb-2">Any Injury?</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="py-2">
+                              {crewCard.employees}
+                              {crewCard.clockInTime && (
+                                <span className="text-sm text-gray-500 block">
+                                  In:{" "}
+                                  {new Date(
+                                    crewCard.clockInTime
+                                  ).toLocaleTimeString("en-US", {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
+                                  {crewCard.clockOutTime && (
+                                    <>
+                                      , Out:{" "}
+                                      {new Date(
+                                        crewCard.clockOutTime
+                                      ).toLocaleTimeString("en-US", {
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })}
+                                    </>
+                                  )}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-2">
+                              {calculateCrewCardHours(crewCard)} Hrs
+                            </td>
+                            <td className="py-2">
+                              {crewCard.injury ? "Yes" : "No"}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Crew Card History */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-semibold mb-3">Crew Card History</h4>
+                      <div className="space-y-2 text-sm">
+                        {crewCard.history &&
+                          crewCard.history.map((entry, index) => (
+                            <div
+                              key={index}
+                              className="border-b pb-2 last:border-0"
+                            >
+                              <span className="text-gray-600">
+                                {new Date(entry.timestamp).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                  }
+                                )}{" "}
+                                {new Date(entry.timestamp).toLocaleTimeString(
+                                  "en-US",
+                                  {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  }
+                                )}
+                                ,
+                              </span>
+                              <span className="font-medium">
+                                {" "}
+                                {entry.employee}{" "}
+                              </span>
+                              <span>
+                                {entry.action === "clock-in"
+                                  ? "Clocked In"
+                                  : entry.action === "break"
+                                  ? "Took a Break"
+                                  : entry.action === "resume"
+                                  ? "Resumed Work"
+                                  : "Clocked Out"}
+                              </span>
+                              {entry.action === "clock-in" && entry.project && (
+                                <span className="text-gray-600">
+                                  ; Selected Project: {entry.project}; Selected
+                                  Cost Code ({entry.costCode})
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    {crewCard.notes && (
+                      <div>
+                        <span className="text-sm text-gray-600">Notes:</span>
+                        <p className="font-medium mt-1">{crewCard.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()
+            ) : (
+              // Default card details view
+              <div className="space-y-3">
+                <div>
+                  <span className="text-sm text-gray-600">Name:</span>
+                  <p className="font-medium">{selectedCard.displayName}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Date:</span>
+                  <p className="font-medium">{selectedCard.displayDate}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Location:</span>
+                  <p className="font-medium">{selectedCard.displayLocation}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-600">Status:</span>
+                  <p className="font-medium">{selectedCard.displayStatus}</p>
+                </div>
               </div>
-              <div>
-                <span className="text-sm text-gray-600">Date:</span>
-                <p className="font-medium">{selectedCard.displayDate}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600">Location:</span>
-                <p className="font-medium">{selectedCard.displayLocation}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600">Status:</span>
-                <p className="font-medium">{selectedCard.displayStatus}</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       )}

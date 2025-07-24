@@ -1,4 +1,4 @@
-import React, { useState, type ChangeEvent } from "react";
+import React, { useEffect, useState, type ChangeEvent } from "react";
 import { useTimeCard } from "./TimeCardContext";
 import type { Entry, FormData, CrewSheet } from "../../Types";
 
@@ -20,12 +20,12 @@ const CrewSheetForm: React.FC = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
+  const [currentSheet, setcurrentSheet] = useState(null);
   const addNewEntry = () => {
     const newEntry: Entry = {
       id: Date.now(),
       employee: "",
-      clockIn: "",
+      clockIn: "", 
       clockOut: "",
       totalHours: "0:00",
       project: formData.project || "",
@@ -65,7 +65,6 @@ const CrewSheetForm: React.FC = () => {
               .toString()
               .padStart(2, "0")}`;
           }
-
           return updated;
         }
         return entry;
@@ -89,18 +88,18 @@ const CrewSheetForm: React.FC = () => {
     }
 
     const crewSheet: CrewSheet = {
-        ...formData,
-        workDate: formData.workDate ?? "",
-        supervisor: formData.supervisor ?? "",
-        entries,
-        totalEmployees: entries.length,
-        id: 0,
-        date: ""
+      ...formData,
+      workDate: formData.workDate ?? "",
+      supervisor: formData.supervisor ?? "",
+      entries,
+      totalEmployees: entries.length,
+      id: 0,
+      date: "",
     };
 
     addCrewSheet(crewSheet);
     alert("Crew sheet saved successfully!");
-
+    console.log("Saving Crew Sheet:", crewSheet);
     // Reset form
     setFormData({
       ...formData,
@@ -108,8 +107,24 @@ const CrewSheetForm: React.FC = () => {
       notes: "",
     });
     setEntries([]);
-  };
 
+    localStorage.setItem(
+      "crewSheet",
+      JSON.stringify([
+        ...JSON.parse(localStorage.getItem("crewSheet") || "[]"),
+        crewSheet,
+      ])
+    );
+  };
+  useEffect(() => {
+    const savedData = localStorage.getItem("currentCrewSheet");
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      setcurrentSheet(parsed.sheet);
+      setFormData(parsed.formData);
+    }
+    setFormData({});
+  }, []);
   const handleCancel = () => {
     setEntries([]);
     setFormData({ ...formData, project: "", notes: "" });
@@ -119,7 +134,6 @@ const CrewSheetForm: React.FC = () => {
     <div className="bg-white rounded-lg p-6 shadow w-full max-w-6xl mx-auto mt-8">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Add Crew Sheet</h2>
-      
       </div>
       <div className="flex flex-wrap gap-4 mb-4">
         <div className="flex-1 min-w-[250px]">
@@ -141,7 +155,6 @@ const CrewSheetForm: React.FC = () => {
               value={formData.supervisor}
               onChange={handleInputChange}
             />
-       
           </div>
         </div>
         <div className="flex-1 min-w-[250px]">
@@ -308,6 +321,11 @@ const CrewSheetForm: React.FC = () => {
           Cancel
         </button>
       </div>
+      <span>
+        {currentSheet?.totalEmployees}, {currentSheet?.costCode},
+        {currentSheet?.supervisor}, {currentSheet?.project},
+        {currentSheet?.workDate}
+      </span>
     </div>
   );
 };
