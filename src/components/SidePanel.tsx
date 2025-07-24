@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaTable, FaChartPie, FaFileAlt, FaBars } from "react-icons/fa";
+import { FaTable, FaChartPie, FaFileAlt, FaBars, FaClock } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 
 interface SidePanelProps {
@@ -12,6 +12,7 @@ const tabs = [
   { key: "chart", label: "Chart", icon: <FaChartPie /> },
   { key: "terms", label: "Terms", icon: <FaFileAlt /> },
   { key: "additem", label: "Add Item", icon: <FaBars /> },
+  { key: "timecard", label: "Time Card", icon: <FaClock /> },
 ];
 
 const SidePanel: React.FC<SidePanelProps> = ({

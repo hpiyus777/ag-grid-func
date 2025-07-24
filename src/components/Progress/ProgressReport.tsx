@@ -55,10 +55,6 @@ export const ProgressReport: React.FC<ProgressReportProps> = ({
     setSidebarOpen(true);
   };
 
-  const handleDelete = () => {
-    onDelete(estimate.id);
-  };
-
   const handleCloseSidebar = () => {
     setSidebarOpen(false);
   };
@@ -74,7 +70,7 @@ export const ProgressReport: React.FC<ProgressReportProps> = ({
     console.log("Estimate updated:", updatedEstimate);
   };
 
-  const showDeleteConfirm = (id: string) => {
+  const showDeleteConfirm = (_id: string) => {
     Modal.confirm({
       title: "Are you sure you want to delete this estimate?",
       content: "This action cannot be undone.",

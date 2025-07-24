@@ -1,0 +1,439 @@
+// import React, { useState, useEffect,type ChangeEvent } from 'react';
+// import { useTimeCard } from './TimeCardContext';
+// import type { TimeCard, FormData } from '../../Types';
+
+// const TimeCardForm: React.FC = () => {
+//   const { addTimeCard, startTimer, stopTimer, activeTimers } = useTimeCard();
+//   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+//   const [elapsedTime, setElapsedTime] = useState<number>(0);
+//   const [currentCardId, setCurrentCardId] = useState<number | null>(null);
+
+//   const [formData, setFormData] = useState<FormData>({
+//     clockInTime: new Date().toTimeString().slice(0, 5),
+//     project: '',
+//     serviceTicket: 'Unassigned',
+//     costCode: 'Unassigned',
+//     employeeName: 'Dhruvit Vaghasiya',
+//     notes: ''
+//   });
+
+//   useEffect(() => {
+//     let interval: ReturnType<typeof setInterval>;
+//     if (isTimerRunning && currentCardId) {
+//       interval = setInterval(() => {
+//         const timer = activeTimers[currentCardId];
+//         if (timer) {
+//           setElapsedTime(Date.now() - timer.startTime);
+//         }
+//       }, 1000);
+//     }
+//     return () => clearInterval(interval);
+//   }, [isTimerRunning, currentCardId, activeTimers]);
+
+//   const formatElapsedTime = (milliseconds: number): string => {
+//     const totalSeconds = Math.floor(milliseconds / 1000);
+//     const hours = Math.floor(totalSeconds / 3600);
+//     const minutes = Math.floor((totalSeconds % 3600) / 60);
+//     const seconds = totalSeconds % 60;
+//     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+//   };
+
+//   const handleStartTimer = () => {
+//     if (!formData.project) {
+//       alert('Please select a project first');
+//       return;
+//     }
+
+//     const newCard: TimeCard = addTimeCard({
+//       ...formData,
+//       clockInTime: new Date().toISOString(),
+//       status: 'active',
+//       date: new Date().toISOString().split('T')[0] // Add date for filtering
+//     });
+
+//     setCurrentCardId(newCard.id ?? null);
+//     if (newCard.id !== undefined) {
+//       startTimer(newCard.id, 'timecard');
+//     }
+//     setIsTimerRunning(true);
+//   };
+
+//   const handleStopTimer = () => {
+//     if (currentCardId) {
+//       const elapsed = stopTimer(currentCardId);
+//       setIsTimerRunning(false);
+//       setElapsedTime(0);
+//       alert(`Timer stopped. Total time: ${formatElapsedTime(elapsed)}`);
+
+//       // Save to localStorage
+//       const storedCards = JSON.parse(localStorage.getItem('timeCards') || '[]');
+//       const updatedCard: TimeCard = {
+//         ...formData,
+//         id: currentCardId,
+//         clockInTime: new Date().toISOString(),
+//         status: 'inactive',
+//         totalHours: elapsed,
+//         date: new Date().toISOString().split('T')[0] // Add date for filtering
+//       };
+//       storedCards.push(updatedCard);
+//       localStorage.setItem('timeCards', JSON.stringify(storedCards));
+
+//       // Reset form
+//       setFormData({
+//         ...formData,
+//         project: '',
+//         notes: ''
+//       });
+//       setCurrentCardId(null);
+//     }
+//   };
+
+//   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+//     const { name, value } = e.target;
+//     setFormData({ ...formData, [name]: value });
+//   };
+
+//   return (
+//     <div className="bg-white rounded-lg p-6 shadow w-full max-w-5xl mx-auto mt-8">
+//       <div className="flex flex-wrap gap-4 mb-4">
+//         <div className="flex-1 min-w-[220px]">
+//           <label className="block text-gray-600 mb-1">Clock-In Time</label>
+//           <div className="flex items-center border rounded px-3 py-2">
+//             <span className="mr-2 text-gray-400">🕒</span>
+//             <input
+//               type="time"
+//               name="clockInTime"
+//               className="outline-none w-full"
+//               value={formData.clockInTime}
+//               onChange={handleInputChange}
+//               disabled={isTimerRunning}
+//             />
+//           </div>
+//         </div>
+//         <div className="flex-1 min-w-[220px]">
+//           <label className="block text-gray-600 mb-1">
+//             Project/Location <span className="text-red-500"></span>
+//           </label>
+//           <input
+//             type="text"
+//             name="project"
+//             className="w-full border rounded px-3 py-2"
+//             placeholder="Enter Project Name"
+//             value={formData.project}
+//             onChange={handleInputChange}
+//             disabled={isTimerRunning}
+//           />
+//         </div>
+//         <div className="flex-1 min-w-[220px]">
+//           <label className="block text-gray-600 mb-1">Service Ticket</label>
+//           <select
+//             name="serviceTicket"
+//             className="w-full border rounded px-3 py-2"
+//             value={formData.serviceTicket}
+//             onChange={handleInputChange}
+//             disabled={isTimerRunning}
+//           >
+//             <option>Unassigned</option>
+//             <option>Ticket #001</option>
+//             <option>Ticket #002</option>
+//           </select>
+//         </div>
+//         <div className="flex-1 min-w-[220px]">
+//           <label className="block text-gray-600 mb-1">
+//             Cost Code <span className="text-red-500"></span>
+//           </label>
+//           <select
+//             name="costCode"
+//             className="w-full border rounded px-3 py-2"
+//             value={formData.costCode}
+//             onChange={handleInputChange}
+//             disabled={isTimerRunning}
+//           >
+//             <option>Unassigned</option>
+//             <option>CC-001</option>
+//             <option>CC-002</option>
+//           </select>
+//         </div>
+//         <div className="flex items-end">
+//           {!isTimerRunning ? (
+//             <button
+//               className="bg-green-500 rounded-full p-3 mt-6 hover:bg-green-600 transition-colors"
+//               onClick={handleStartTimer}
+//             >
+//               <span className="text-white text-xl">▶</span>
+//             </button>
+//           ) : (
+//             <button
+//               className="bg-red-500 rounded-full p-3 mt-6 hover:bg-red-600 transition-colors"
+//               onClick={handleStopTimer}
+//             >
+//               <span className="text-white text-xl">■</span>
+//             </button>
+//           )}
+//         </div>
+//       </div>
+//       {/* Timer Display */}
+//       {isTimerRunning && (
+//         <div className="bg-blue-50 rounded-lg p-4 mb-4 text-center">
+//           <div className="text-2xl font-bold text-blue-700">
+//             {formatElapsedTime(elapsedTime)}
+//           </div>
+//           <div className="text-sm text-gray-600">Timer Running</div>
+//         </div>
+//       )}
+//       {/* Notes */}
+//       <div className="mt-4">
+//         <label className="block text-gray-600 mb-1">Notes</label>
+//         <textarea
+//           name="notes"
+//           className="w-full border rounded px-3 py-2"
+//           rows={3}
+//           placeholder="Add any notes..."
+//           value={formData.notes}
+//           onChange={handleInputChange}
+//         />
+//       </div>
+
+//     </div>
+//   );
+// };
+
+// export default TimeCardForm;
+
+
+
+
+
+
+
+import React, { useState, useEffect, type ChangeEvent } from 'react';
+import { useTimeCard } from './TimeCardContext';
+import type { TimeCard, FormData } from '../../Types';
+
+const TimeCardForm: React.FC = () => {
+  const { addTimeCard, startTimer, stopTimer, activeTimers } = useTimeCard();
+  const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [currentCardId, setCurrentCardId] = useState<number | null>(null);
+
+  const [formData, setFormData] = useState<FormData>({
+    clockInTime: new Date().toTimeString().slice(0, 5),
+    project: '',
+    serviceTicket: 'Unassigned',
+    costCode: 'Unassigned',
+    employeeName: 'Dhruvit Vaghasiya',
+    notes: ''
+  });
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isTimerRunning && currentCardId) {
+      interval = setInterval(() => {
+        const timer = activeTimers[currentCardId];
+        if (timer) {
+          setElapsedTime(Date.now() - timer.startTime);
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, currentCardId, activeTimers]);
+
+  const formatElapsedTime = (milliseconds: number): string => {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleStartTimer = () => {
+    if (!formData.project) {
+      alert('Please select a project first');
+      return;
+    }
+
+    const newCard: TimeCard = addTimeCard({
+      ...formData,
+      clockInTime: new Date().toISOString(),
+      status: 'active',
+      date: new Date().toISOString().split('T')[0]
+    });
+
+    setCurrentCardId(newCard.id ?? null);
+    if (newCard.id !== undefined) {
+      startTimer(newCard.id, 'timecard');
+    }
+    setIsTimerRunning(true);
+  };
+
+  const handleStopTimer = () => {
+    if (currentCardId) {
+      const elapsed = stopTimer(currentCardId);
+      setIsTimerRunning(false);
+      setElapsedTime(0);
+      
+      // Update the existing card instead of creating a new one
+      const storedCards = JSON.parse(localStorage.getItem('timeCards') || '[]');
+      const existingCardIndex = storedCards.findIndex((card: any) => card.id === currentCardId);
+      
+      if (existingCardIndex === -1) {
+        // Only add if it doesn't exist
+        const updatedCard: TimeCard = {
+          ...formData,
+          id: currentCardId,
+          clockInTime: new Date().toISOString(),
+          status: 'inactive',
+          totalHours: elapsed,
+          date: new Date().toISOString().split('T')[0]
+        };
+        storedCards.push(updatedCard);
+      } else {
+        // Update existing card
+        storedCards[existingCardIndex] = {
+          ...storedCards[existingCardIndex],
+          status: 'inactive',
+          totalHours: elapsed
+        };
+      }
+      
+      localStorage.setItem('timeCards', JSON.stringify(storedCards));
+      
+      // Dispatch a custom event to notify dashboard
+      window.dispatchEvent(new Event('timeCardsUpdated'));
+      
+      alert(`Timer stopped. Total time: ${formatElapsedTime(elapsed)}`);
+
+      // Reset form
+      setFormData({
+        ...formData,
+        project: '',
+        notes: ''
+      });
+      setCurrentCardId(null);
+    }
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  return (
+    <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-5xl mx-auto mt-8">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">Time Card Entry</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Clock-In Time</label>
+          <div className="flex items-center border border-gray-300 rounded-md px-3 py-2 bg-gray-50">
+            <span className="mr-2 text-gray-500">🕒</span>
+            <input
+              type="time"
+              name="clockInTime"
+              className="outline-none bg-transparent w-full"
+              value={formData.clockInTime}
+              onChange={handleInputChange}
+              disabled={isTimerRunning}
+            />
+          </div>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Project/Location <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="project"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter Project Name"
+            value={formData.project}
+            onChange={handleInputChange}
+            disabled={isTimerRunning}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Service Ticket</label>
+          <select
+            name="serviceTicket"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={formData.serviceTicket}
+            onChange={handleInputChange}
+            disabled={isTimerRunning}
+          >
+            <option>Unassigned</option>
+            <option>Ticket #001</option>
+            <option>Ticket #002</option>
+          </select>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Cost Code <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="costCode"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={formData.costCode}
+            onChange={handleInputChange}
+            disabled={isTimerRunning}
+          >
+            <option>Unassigned</option>
+            <option>CC-001</option>
+            <option>CC-002</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Timer Display */}
+      {isTimerRunning && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 text-center">
+          <div className="text-4xl font-bold text-blue-700 mb-2">
+            {formatElapsedTime(elapsedTime)}
+          </div>
+          <div className="text-sm text-gray-600">Timer Running for {formData.project}</div>
+        </div>
+      )}
+
+      {/* Notes */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+        <textarea
+          name="notes"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          rows={3}
+          placeholder="Add any notes..."
+          value={formData.notes}
+          onChange={handleInputChange}
+          disabled={isTimerRunning}
+        />
+      </div>
+
+      {/* Action Button */}
+      <div className="flex justify-center">
+        {!isTimerRunning ? (
+          <button
+            className="bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg transform transition-all hover:scale-105"
+            onClick={handleStartTimer}
+          >
+            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+            </svg>
+          </button>
+        ) : (
+          <button
+            className="bg-red-500 hover:bg-red-600 text-white rounded-full p-4 shadow-lg transform transition-all hover:scale-105"
+            onClick={handleStopTimer}
+          >
+            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+            </svg>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default TimeCardForm;

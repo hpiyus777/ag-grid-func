@@ -321,10 +321,10 @@ const DataGrid = React.memo(() => {
 
         {visibleCount < filteredGroupedItems.length && (
           <div ref={loadingDivRef} className="text-center py-6">
-            <div className="inline-flex items-center text-gray-600">
+            {/* <div className="inline-flex items-center text-gray-600">
               tables... !!!!!!!!!!!!!({visibleCount} of{" "}
               {filteredGroupedItems.length})
-            </div>
+            </div> */}
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
           </div>
         )}
