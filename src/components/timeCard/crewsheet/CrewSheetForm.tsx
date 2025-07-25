@@ -1,18 +1,51 @@
 import React, { useEffect, useState, type ChangeEvent } from "react";
-import { useTimeCard } from "./TimeCardContext";
-import type { Entry, FormData, CrewSheet } from "../../Types";
+import { useTimeCard } from "../TimeCardDashboard/TimeCardContext";
+import type { Entry, FormData, CrewSheet } from "../../../Types";
 
 const CrewSheetForm: React.FC = () => {
   const { addCrewSheet } = useTimeCard();
   const [entries, setEntries] = useState<Entry[]>([]);
+
+  const selectedDate =
+    window.selectedDate || new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState<FormData>({
-    workDate: new Date().toISOString().split("T")[0],
+    workDate: selectedDate,
     employees: "",
     supervisor: "",
     project: "",
     costCode: "Unassigned",
     notes: "",
   });
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      workDate: selectedDate,
+    }));
+  }, [selectedDate]);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("currentCrewSheet");
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      if (parsed.sheet && parsed.sheet.date === selectedDate) {
+        setFormData(parsed.formData);
+        if (parsed.sheet.entries) {
+          setEntries(parsed.sheet.entries);
+        }
+      } else {
+        localStorage.removeItem("currentCrewSheet");
+        setFormData({
+          workDate: selectedDate,
+          employees: "",
+          supervisor: "",
+          project: "",
+          costCode: "Unassigned",
+          notes: "",
+        });
+      }
+    }
+  }, [selectedDate]);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -20,12 +53,12 @@ const CrewSheetForm: React.FC = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-  const [currentSheet, setcurrentSheet] = useState(null);
+
   const addNewEntry = () => {
     const newEntry: Entry = {
       id: Date.now(),
       employee: "",
-      clockIn: "", 
+      clockIn: "",
       clockOut: "",
       totalHours: "0:00",
       project: formData.project || "",
@@ -89,45 +122,52 @@ const CrewSheetForm: React.FC = () => {
 
     const crewSheet: CrewSheet = {
       ...formData,
-      workDate: formData.workDate ?? "",
+      workDate: selectedDate,
       supervisor: formData.supervisor ?? "",
       entries,
       totalEmployees: entries.length,
-      id: 0,
-      date: "",
+      id: Date.now(),
+      date: selectedDate,
     };
 
     addCrewSheet(crewSheet);
     alert("Crew sheet saved successfully!");
     console.log("Saving Crew Sheet:", crewSheet);
-    // Reset form
+
+    const existingSheets = JSON.parse(
+      localStorage.getItem("crewSheets") || "[]"
+    );
+    localStorage.setItem(
+      "crewSheets",
+      JSON.stringify([...existingSheets, crewSheet])
+    );
+
+    localStorage.removeItem("currentCrewSheet");
+
+    window.dispatchEvent(new Event("crewSheetsUpdated"));
+
     setFormData({
-      ...formData,
+      workDate: selectedDate,
+      employees: "",
+      supervisor: "",
       project: "",
+      costCode: "Unassigned",
       notes: "",
     });
     setEntries([]);
-
-    localStorage.setItem(
-      "crewSheet",
-      JSON.stringify([
-        ...JSON.parse(localStorage.getItem("crewSheet") || "[]"),
-        crewSheet,
-      ])
-    );
   };
-  useEffect(() => {
-    const savedData = localStorage.getItem("currentCrewSheet");
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      setcurrentSheet(parsed.sheet);
-      setFormData(parsed.formData);
-    }
-    setFormData({});
-  }, []);
+
   const handleCancel = () => {
     setEntries([]);
-    setFormData({ ...formData, project: "", notes: "" });
+    setFormData({
+      workDate: selectedDate,
+      employees: "",
+      supervisor: "",
+      project: "",
+      costCode: "Unassigned",
+      notes: "",
+    });
+    localStorage.removeItem("currentCrewSheet");
   };
 
   return (
@@ -135,31 +175,44 @@ const CrewSheetForm: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Add Crew Sheet</h2>
       </div>
+
+      <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+        <span className="text-sm text-gray-600">Creating sheet for date: </span>
+        <span className="font-semibold text-blue-700">
+          {new Date(selectedDate).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
+        </span>
+      </div>
+
       <div className="flex flex-wrap gap-4 mb-4">
         <div className="flex-1 min-w-[250px]">
           <label className="block text-gray-600 mb-1">
-            Work Date <span className="text-red-500"></span> / Supervisor{" "}
-            <span className="text-red-500"></span>
+            Work Date <span className="text-red-500">*</span> / Supervisor{" "}
+            <span className="text-red-500">*</span>
           </label>
           <div className="flex">
             <input
               type="date"
               name="workDate"
-              className="w-full border rounded-l px-3 py-2"
-              value={formData.workDate}
-              onChange={handleInputChange}
+              className="w-full border rounded-l px-3 py-2 bg-gray-100"
+              value={selectedDate}
+              readOnly
             />
             <input
               name="supervisor"
               className="w-full border rounded-r px-3 py-2"
               value={formData.supervisor}
               onChange={handleInputChange}
+              placeholder="Enter Supervisor Name"
             />
           </div>
         </div>
         <div className="flex-1 min-w-[250px]">
           <label className="block text-gray-600 mb-1">
-            Project <span className="text-red-500"></span>
+            Project <span className="text-red-500">*</span>
           </label>
           <input
             name="project"
@@ -194,13 +247,13 @@ const CrewSheetForm: React.FC = () => {
               <th className="px-2 py-1 text-left">Clock-Out</th>
               <th className="px-2 py-1 text-left">Total Hours</th>
               <th className="px-2 py-1 text-left">
-                Project<span className="text-red-500"></span>
+                Project<span className="text-red-500">*</span>
               </th>
               <th className="px-2 py-1 text-left">
-                Cost Code<span className="text-red-500"></span>
+                Cost Code<span className="text-red-500">*</span>
               </th>
               <th className="px-2 py-1 text-left">
-                Injured?<span className="text-red-500"></span>
+                Injured?<span className="text-red-500">*</span>
               </th>
               <th className="px-2 py-1 text-left">Actions</th>
             </tr>
@@ -321,11 +374,6 @@ const CrewSheetForm: React.FC = () => {
           Cancel
         </button>
       </div>
-      <span>
-        {currentSheet?.totalEmployees}, {currentSheet?.costCode},
-        {currentSheet?.supervisor}, {currentSheet?.project},
-        {currentSheet?.workDate}
-      </span>
     </div>
   );
 };

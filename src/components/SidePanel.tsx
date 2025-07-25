@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { FaTable, FaChartPie, FaFileAlt, FaBars, FaClock } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import {
+  FaTable,
+  FaChartPie,
+  FaFileAlt,
+  FaBars,
+  FaClock,
+} from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 
 interface SidePanelProps {
@@ -11,6 +17,7 @@ const tabs = [
   { key: "table", label: "Table", icon: <FaTable /> },
   { key: "chart", label: "Chart", icon: <FaChartPie /> },
   { key: "terms", label: "Terms", icon: <FaFileAlt /> },
+  // { key: "files", label: "Files", icon: <FaFileAlt /> },
   { key: "additem", label: "Add Item", icon: <FaBars /> },
   { key: "timecard", label: "Time Card", icon: <FaClock /> },
 ];
@@ -21,21 +28,29 @@ const SidePanel: React.FC<SidePanelProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(true);
 
+  useEffect(() => {
+    if (selectedTab === "timecard") {
+      setIsOpen(false);
+    }
+  }, [selectedTab]);
+
+  const isTimeCard = selectedTab === "timecard";
+
   return (
     <div
       className={`transition-all duration-300 bg-white border-r border-gray-300 h-screen flex flex-col items-center py-5 shadow-md ${
         isOpen ? "w-48" : "w-16"
       }`}
     >
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="mb-8 text-gray-600 hover:text-blue-600 transition-colors w-full flex justify-end cursor-pointer mr-10"
-      >
-        <FaBars size={20} />
-      </button>
+      {!isTimeCard && (
+        <button
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="mb-8 text-gray-600 hover:text-blue-600 transition-colors w-full flex justify-end cursor-pointer mr-10"
+        >
+          <FaBars size={20} />
+        </button>
+      )}
 
-      {/* Navigation Tabs */}
       <div className="flex flex-col w-full space-y-3">
         {tabs.map(({ key, label, icon }) => {
           const isActive = selectedTab === key;
@@ -54,7 +69,12 @@ const SidePanel: React.FC<SidePanelProps> = ({
             >
               <span className="text-lg">{icon}</span>
               {isOpen && <span className="capitalize text-sm">{label}</span>}
-              {!isOpen && <Tooltip id={`tooltip-${key}`} />}
+              {!isOpen && (
+                <Tooltip
+                  id={`tooltip-${key}`}
+                  style={{ zIndex: 9999 }} 
+                />
+              )}
             </button>
           );
         })}

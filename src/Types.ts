@@ -137,7 +137,7 @@ export interface TimeCard {
   serviceTicket?: string;
   costCode?: string;
   notes?: string;
-  status?: "active" | "completed";
+  status?: "active" | "completed" | "inactive";
   totalHours?: number;
   date?: string;
   newTimeCard?: boolean;
@@ -145,21 +145,7 @@ export interface TimeCard {
   breaks?: Break[];
 }
 
-// export interface CrewCard {
-//   id: number;
-//   employees?: string;
-//   supervisor?: string;
-//   project?: string;
-//   costCode?: string;
-//   notes?: string;
-//   clockInTime?: string;
-//   clockOutTime?: string;
-//   status?: "clocked-in" | "break" | "resumed" | "clocked-out";
-//   lastBreakStart?: string;
-//   lastBreakEnd?: string;
-//   breaks: Break[];
-//   date?: string;
-// }
+// Removed commented out CrewCard interface
 
 export interface Break {
   start: string;
@@ -188,25 +174,22 @@ export interface CrewSheet {
   date?: string;
 }
 
-export interface ActiveTimer {
-  startTime: number;
-  type: "timecard" | "crewcard";
-}
+// Removed duplicate interface
 
 export interface TimeCardContextType {
   timeCards: TimeCard[];
   crewCards: CrewCard[];
   crewSheets: CrewSheet[];
-  activeTimers: Record<number, ActiveTimer>;
-  addTimeCard: (
-    timeCard: Omit<TimeCard, "id" | "date" | "totalHours">
-  ) => TimeCard;
-  updateTimeCard: (id: number, updates: Partial<TimeCard>) => void;
-   addCrewCard: (card: CrewCard) => CrewCard;
-   updateCrewCard: (id: string, updatedCard: CrewCard) => void;
-  addCrewSheet: (crewSheet: Omit<CrewSheet, "id" | "date">) => CrewSheet;
-  startTimer: (cardId: number, type: "timecard" | "crewcard") => void;
-  stopTimer: (cardId: number) => number;
+  activeTimers: Record<number, Timer>;
+  addTimeCard: (card: Omit<TimeCard, "id">) => TimeCard;
+  addCrewCard: (card: Omit<CrewCard, "id">) => CrewCard;
+  addCrewSheet: (sheet: Omit<CrewSheet, "id">) => CrewSheet;
+  updateCrewCard: (id: string, updatedCard: CrewCard) => void;
+  startTimer: (id: number, type: "timecard" | "crewcard") => void;
+  stopTimer: (id: number) => number;
+  removeTimeCard: (id: number | string) => void;
+  removeCrewCard: (id: string | number) => void;
+  removeCrewSheet: (id: string | number) => void;
 }
 
 export interface Entry {
@@ -220,21 +203,9 @@ export interface Entry {
   injured: "No" | "Yes";
 }
 
-// export interface FormData {
-//   workDate: string;
-//   supervisor: string;
-//   project: string;
-//   notes: string;
-// }
+// Removed commented out FormData interface
 
-export interface CrewSheet {
-  workDate?: string;
-  supervisor?: string;
-  project?: string;
-  notes?: string;
-  entries?: Entry[];
-  totalEmployees?: number;
-}
+// CrewSheet interface is already defined above (lines 180-189)
 
 export interface FormData {
   workDate?: string;
@@ -248,65 +219,30 @@ export interface FormData {
   employeeName?: string;
 }
 
-// export interface CrewCard {
-//   id: number;
-//   employees?: string;
-//   supervisor?: string;
-//   project?: string;
-//   costCode?: string;
-//   notes?: string;
-//   clockInTime?: string;
-//   status?: "clocked-in" | "break" | "resumed" | "clocked-out";
-//   lastBreakStart?: string;
-//   lastBreakEnd?: string;
-//   clockOutTime?: string;
-//   newCrewCard?: boolean;
-// }
+// Removed commented out CrewCard interface
 
-export interface TimeCard {
-  id?: number;
-  clockInTime?: string;
-  status?: string;
-  project?: string;
-  serviceTicket?: string;
-  costCode?: string;
-  employeeName?: string;
-  notes?: string;
-  newTimeCard?: boolean;
-}
+// TimeCard interface is already defined above
 
 export interface DisplayCard {
-  id: string ;
+  id: string | number;
   type: "timecard" | "crewcard" | "crewsheet";
-  timeCards?: TimeCard[];
-  crewCard?: CrewCard;
-  crewSheet?: CrewSheet;
   displayName: string;
   displayDate: string;
   displayLocation: string;
   displayStatus: string;
-  DisplayCard: string;
-  
+  displayDetails?: string;
 }
 
-
 export interface Timer {
+  startTime: number;
+  type: "timecard" | "crewcard";
+}
 
-} 
-
-// Types.ts
-// export interface FormData {
-//   workDate: string;
-//   employees: string;
-//   supervisor: string;
-//   project: string;
-//   costCode: string;
-//   notes: string;
-// }
+// Removed commented out FormData interface
 
 export interface CrewCardHistory {
   timestamp: string;
-  action: 'clock-in' | 'break' | 'resume' | 'clock-out';
+  action: "clock-in" | "break" | "resume" | "clock-out";
   employee: string;
   project?: string;
   costCode?: string;
@@ -320,7 +256,7 @@ export interface CrewCard {
   project: string;
   costCode: string;
   notes: string;
-  status: 'idle' | 'clocked-in' | 'break' | 'resumed' | 'clocked-out';
+  status: "idle" | "clocked-in" | "break" | "resumed" | "clocked-out";
   clockInTime?: string;
   clockOutTime?: string;
   lastBreakStart?: string;
@@ -331,12 +267,4 @@ export interface CrewCard {
   totalHours?: number;
 }
 
-// export interface DisplayCard {
-//   id: string | number;
-//   type: 'timecard' | 'crewcard' | 'crewsheet';
-//   displayName: string;
-//   displayDate: string;
-//   displayLocation: string;
-//   displayStatus: string;
-//   displayDetails?: string;
-// }
+// Removed commented out DisplayCard interface
