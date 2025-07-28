@@ -4,6 +4,7 @@ import {
   FaChartPie,
   FaFileAlt,
   FaBars,
+  FaFolder,
   FaClock,
 } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
@@ -17,7 +18,7 @@ const tabs = [
   { key: "table", label: "Table", icon: <FaTable /> },
   { key: "chart", label: "Chart", icon: <FaChartPie /> },
   { key: "terms", label: "Terms", icon: <FaFileAlt /> },
-  // { key: "files", label: "Files", icon: <FaFileAlt /> },
+  { key: "files", label: "Files", icon: <FaFolder /> },
   { key: "additem", label: "Add Item", icon: <FaBars /> },
   { key: "timecard", label: "Time Card", icon: <FaClock /> },
 ];
@@ -70,10 +71,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
               <span className="text-lg">{icon}</span>
               {isOpen && <span className="capitalize text-sm">{label}</span>}
               {!isOpen && (
-                <Tooltip
-                  id={`tooltip-${key}`}
-                  style={{ zIndex: 9999 }} 
-                />
+                <Tooltip id={`tooltip-${key}`} style={{ zIndex: 9999 }} />
               )}
             </button>
           );
