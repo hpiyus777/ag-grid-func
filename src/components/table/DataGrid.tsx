@@ -77,7 +77,7 @@ const DataGrid = React.memo(() => {
   const handleDragEnd = (result: { source: any; destination: any }) => {
     const { source, destination } = result;
     if (!destination || !source) return;
-    console.log(handleDragEnd, "handleDragEnd");
+
     const reordered = Array.from(groupedItems);
     const [movedSection] = reordered.splice(source.index, 1);
     reordered.splice(destination.index, 0, movedSection);

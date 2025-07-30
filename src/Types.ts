@@ -48,6 +48,7 @@ export interface DataState {
   visibleSections: any;
   mountedSections: any;
   pendingDrops: any;
+  hasFetchedData: boolean;
   gridData: GridItem[];
   groupedItems: {
     section_id: number;

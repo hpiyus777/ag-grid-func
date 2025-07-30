@@ -8,6 +8,7 @@ const initialState: DataState = {
   error: null,
   visibleCount: 1, //ketla table add thase on load pr A aaya nkki thay
   isOpen: false,
+  hasFetchedData: false,
   selectedRowData: "",
   selectedRows: [],
   sidebarMode: "row",
@@ -30,6 +31,7 @@ export const dataSlice = createSlice({
         sections: { section_id: number; section_name: string }[];
       }>
     ) => {
+      state.hasFetchedData = true;
       state.gridData = action.payload.items;
 
       const groupedBySection: { [key: string]: GridItem[] } = {};
@@ -304,7 +306,7 @@ export const dataSlice = createSlice({
         (s) => s.section_id === section_id
       );
       if (section) {
-        updatedItems.forEach((updatedItem:any) => {
+        updatedItems.forEach((updatedItem: any) => {
           const index = section.items.findIndex(
             (item) => item.item_id === updatedItem.item_id
           );
