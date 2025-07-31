@@ -7,10 +7,11 @@ const IconDelete = (props: any) => {
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    const deleteId = props.data.internal_id || props.data.item_id;
+
     if (window.confirm(" delete ")) {
-      //1 row dlt
-      dispatch(deleteSelectedRows([Number(props.data.item_id)]));
-      // console.log("delete clcick")
+      dispatch(deleteSelectedRows([deleteId.toString()]));
     }
   };
 

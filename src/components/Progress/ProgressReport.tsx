@@ -51,7 +51,6 @@ export const ProgressReport: React.FC<ProgressReportProps> = ({
   };
 
   const handleEdit = () => {
-    console.log("sideedit:", currentEstimate);
     setSidebarOpen(true);
   };
 
@@ -67,7 +66,6 @@ export const ProgressReport: React.FC<ProgressReportProps> = ({
     setCurrentEstimate(updatedEstimate);
     onUpdate(estimate.id, data);
     setSidebarOpen(false);
-    console.log("Estimate updated:", updatedEstimate);
   };
 
   const showDeleteConfirm = (_id: string) => {

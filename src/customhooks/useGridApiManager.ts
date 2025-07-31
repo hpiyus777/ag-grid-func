@@ -49,7 +49,6 @@ export const useGridApiManager = (groupedItems: any) => {
         addDropZone(params.api, otherApi, sectionId, otherSectionId); //crnt grid paramsapi biji gird other api mate dropzone set kre
         addDropZone(otherApi, params.api, otherSectionId, sectionId); //biji gird other api peli grid paramsapi  mate dropzone set kre
       }
-      console.log("Grid ready for section:", sectionId);
     });
   }; //new je column hoy ene autofit kre table ma and cross dnd dropzone new mate pn kre+
 
