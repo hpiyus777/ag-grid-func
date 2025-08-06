@@ -22,7 +22,6 @@ export const estimatesSlice = createSlice({
     },
     setCurrentEstimate: (state, action: PayloadAction<Estimate | null>) => {
       state.currentEstimate = action.payload;
-      console.log(state.currentEstimate ,"currentEstimate");
     },
     updateEstimateProgress: (
       state,
@@ -54,5 +53,11 @@ export const estimatesSlice = createSlice({
   },
 });
 
-export const { addEstimate, setCurrentEstimate, updateEstimateProgress, updateEstimateDetails, deleteEstimateDetail } = estimatesSlice.actions;
+export const {
+  addEstimate,
+  setCurrentEstimate,
+  updateEstimateProgress,
+  updateEstimateDetails,
+  deleteEstimateDetail,
+} = estimatesSlice.actions;
 export default estimatesSlice.reducer;

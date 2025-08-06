@@ -83,7 +83,6 @@ export const TimeCardProvider: React.FC<{ children: ReactNode }> = ({
       id: Date.now(),
     };
     setCrewSheets((prev) => [...prev, newSheet]);
-    console.log("Adding Crew Sheet:", newSheet);
     return newSheet;
   };
 

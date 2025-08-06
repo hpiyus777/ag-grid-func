@@ -178,7 +178,6 @@ const ChartWithTable = ({ showMarkup = true }) => {
 
   // Handle edit mode
   const handleEditClick = () => {
-    console.log("clcick") 
     setIsEditMode(true);
     // Create deep copies of the data to make them mutable
     setEditedData(selectedSectionData.items.map((item: any) => ({ ...item })));
@@ -202,7 +201,6 @@ const ChartWithTable = ({ showMarkup = true }) => {
         updatedItems: editedData,
       })
     );
-    console.log("cancel")
     setIsEditMode(false);
     setEditedData([]);
   };

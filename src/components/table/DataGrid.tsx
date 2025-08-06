@@ -9,8 +9,6 @@ import {
   addNewSectionWithItems,
   deleteSectionById,
 } from "../../features/data/dataSlice.ts";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
 import AgGridLoader from "./AgGridLoader.tsx";
 import React from "react";
 import "../../App.css";
@@ -32,7 +30,7 @@ import { useRowSelection } from "../../customhooks/useRowSelection.ts";
 import { useGridApiManager } from "../../customhooks/useGridApiManager.ts";
 const DataGrid = React.memo(() => {
   const dispatch = useDispatch(); //action dispatch kva
-  const { Panel } = Collapse;
+  // const { Panel } = Collapse;
   const globalKey = "Flag"; // Key for localStorage to manage expand/collapse state
   const selectedRows = useSelector(
     (state: RootState) => state.data.selectedRows
@@ -77,7 +75,7 @@ const DataGrid = React.memo(() => {
   const handleDragEnd = (result: { source: any; destination: any }) => {
     const { source, destination } = result;
     if (!destination || !source) return;
-    console.log(handleDragEnd, "handleDragEnd");
+
     const reordered = Array.from(groupedItems);
     const [movedSection] = reordered.splice(source.index, 1);
     reordered.splice(destination.index, 0, movedSection);
@@ -233,67 +231,71 @@ const DataGrid = React.memo(() => {
                               <Collapse
                                 activeKey={isOpen ? [sectionId] : []}
                                 expandIconPosition="start"
-                                ghost // styling your own custom headers
-                              >
-                                <Panel
-                                  key={sectionId}
-                                  showArrow={false}
-                                  header={null}
-                                >
-                                  <div
-                                    className="ag-theme-alpine-dark"
-                                    style={{
-                                      height: `${calculateGridHeight(
-                                        sectionObj.items.length
-                                      )}px`,
-                                      width: "100%",
-                                      minHeight: "200px",
-                                    }}
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                  >
-                                    <AgGridReact
-                                      rowData={sectionObj.items.map(
-                                        (item: any) => ({ ...item })
-                                      )}
-                                      columnDefs={getColumnDefs(showMarkup)}
-                                      defaultColDef={defaultColDef}
-                                      onGridReady={(params) =>
-                                        handleGridReady(params, sectionId)
-                                      }
-                                      rowDragManaged={true}
-                                      animateRows={true}
-                                      getRowId={(params) =>
-                                        params.data.item_id.toString()
-                                      }
-                                      enableCellTextSelection={false}
-                                      domLayout="normal"
-                                      suppressColumnVirtualisation={true}
-                                      rowHeight={48}
-                                      headerHeight={48}
-                                      suppressDragLeaveHidesColumns={true}
-                                      suppressMoveWhenColumnDragging={true}
-                                      allowDragFromColumnsToolPanel={true}
-                                      suppressColumnMoveAnimation={true}
-                                      suppressMoveWhenRowDragging={true}
-                                      rowDragMultiRow={true}
-                                      rowSelection={rowSelection}
-                                      suppressMenuHide={true}
-                                      onSelectionChanged={handleSelectionChange}
-                                      enableBrowserTooltips={false}
-                                      suppressRowClickSelection={true}
-                                      noRowsOverlayComponent={NoRecords}
-                                      tooltipMouseTrack={false}
-                                      tooltipShowDelay={100}
-                                      tooltipHideDelay={400}
-                                      loading={isSectionLoading}
-                                      loadingOverlayComponent={AgGridLoader}
-                                      noRowsOverlayComponentParams={{
-                                        text: "No Items Found",
-                                      }}
-                                    />
-                                  </div>
-                                </Panel>
-                              </Collapse>
+                                ghost
+                                items={[
+                                  {
+                                    key: sectionId,
+                                    label: null,
+                                    children: (
+                                      <div
+                                        // className="ag-theme-alpine-dark"
+                                        style={{
+                                          height: `${calculateGridHeight(
+                                            sectionObj.items.length
+                                          )}px`,
+                                          width: "100%",
+                                          minHeight: "200px",
+                                        }}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        <AgGridReact
+                                          rowData={sectionObj.items.map(
+                                            (item: any) => ({ ...item })
+                                          )}
+                                          columnDefs={getColumnDefs(showMarkup)}
+                                          defaultColDef={defaultColDef}
+                                          onGridReady={(params) =>
+                                            handleGridReady(params, sectionId)
+                                          }
+                                          rowDragManaged
+                                          animateRows
+                                          getRowId={(params) =>
+                                            params.data.item_id.toString()
+                                          }
+                                          enableCellTextSelection={false}
+                                          domLayout="normal"
+                                          suppressColumnVirtualisation
+                                          rowHeight={48}
+                                          headerHeight={48}
+                                          suppressDragLeaveHidesColumns
+                                          suppressMoveWhenColumnDragging
+                                          allowDragFromColumnsToolPanel
+                                          suppressColumnMoveAnimation
+                                          suppressMoveWhenRowDragging
+                                          rowDragMultiRow
+                                          rowSelection={rowSelection}
+                                          suppressMenuHide
+                                          onSelectionChanged={
+                                            handleSelectionChange
+                                          }
+                                          enableBrowserTooltips={false}
+                                          suppressRowClickSelection
+                                          noRowsOverlayComponent={NoRecords}
+                                          tooltipMouseTrack={false}
+                                          tooltipShowDelay={100}
+                                          tooltipHideDelay={400}
+                                          loading={isSectionLoading}
+                                          loadingOverlayComponent={AgGridLoader}
+                                          noRowsOverlayComponentParams={{
+                                            text: "No Items Found",
+                                          }}
+                                        />
+                                      </div>
+                                    ),
+                                    showArrow: false,
+                                  },
+                                ]}
+                              />
                             </div>
                           )}
                         </Draggable>

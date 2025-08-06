@@ -1,20 +1,25 @@
 import { useState, useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setGridData } from "../features/data/dataSlice";
+import type { RootState } from "../Store/Store";
 import type { ApiResponse } from "../Types";
 
 export const useFetchData = () => {
   const dispatch = useDispatch();
+  const hasFetchedData = useSelector(
+    (state: RootState) => state.data.hasFetchedData
+  );
+
   const [loading, setLoading] = useState(false);
   const [sectionLoading, setSectionLoading] = useState<Record<string, boolean>>(
     {}
   );
 
   const fetchData = useCallback(async () => {
-    // debugger;
+    if (hasFetchedData) return; // skip if already fetched
+
     try {
-      setLoading(false);
-      // const response = await fetch("/data.json");
+      setLoading(true);
       const response = await fetch("/dataShort.json");
       const responseData: ApiResponse = await response.json();
 
@@ -36,7 +41,7 @@ export const useFetchData = () => {
     } finally {
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch, hasFetchedData]);
 
   const setSectionLoadingState = useCallback(
     (sectionId: string, isLoading: boolean) => {

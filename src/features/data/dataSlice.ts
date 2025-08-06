@@ -8,6 +8,7 @@ const initialState: DataState = {
   error: null,
   visibleCount: 1, //ketla table add thase on load pr A aaya nkki thay
   isOpen: false,
+  hasFetchedData: false,
   selectedRowData: "",
   selectedRows: [],
   sidebarMode: "row",
@@ -30,6 +31,7 @@ export const dataSlice = createSlice({
         sections: { section_id: number; section_name: string }[];
       }>
     ) => {
+      state.hasFetchedData = true;
       state.gridData = action.payload.items;
 
       const groupedBySection: { [key: string]: GridItem[] } = {};
@@ -80,7 +82,7 @@ export const dataSlice = createSlice({
       state.visibleCount = Math.min(action.payload, maxCount);
     },
     moveItemBetweenSections: (state, action) => {
-      const { items, fromSectionId, toSectionId } = action.payload;
+      const { items, fromSectionId, toSectionId, targetIndex } = action.payload;
 
       const fromSection = state.groupedItems.find(
         (s) => s.section_id.toString() === fromSectionId
@@ -90,15 +92,28 @@ export const dataSlice = createSlice({
       );
 
       if (fromSection && toSection) {
+        // Extract item IDs to remove
+        const itemIds = items.map((item: any) => item.item_id);
+
+        // Remove items from source section
         fromSection.items = fromSection.items.filter(
-          (item) =>
-            !items.some(
-              (movedItem: { item_id: number }) =>
-                movedItem.item_id === item.item_id
-            )
+          (item) => !itemIds.includes(item.item_id)
         );
 
-        toSection.items = [...toSection.items, ...items];
+        // Update items with new section info
+        const updatedItems = items.map((item: any) => ({
+          ...item,
+          section_id: toSectionId,
+          section_name: toSection.section_name,
+        }));
+
+        // Insert at specific index
+        if (targetIndex !== undefined && targetIndex >= 0) {
+          toSection.items.splice(targetIndex, 0, ...updatedItems);
+        } else {
+          // Fallback: add at end
+          toSection.items.push(...updatedItems);
+        }
       }
     },
     setGroupedSections: (state, action) => {
@@ -113,22 +128,36 @@ export const dataSlice = createSlice({
     setSelectedRows: (state, action) => {
       state.selectedRows = action.payload;
     },
+    // deleteSelectedRows: (state, action) => {
+    //   // dlt mate row
+    //   const rowsToDelete = action.payload || state.selectedRows;
+    //   const idsToDelete = rowsToDelete.map((id: any) =>
+    //     typeof id === "string" ? parseInt(id, 10) : Number(id)
+    //   );
+    //   //section row ne taget kre
+    //   state.groupedItems = state.groupedItems.map((section) => ({
+    //     ...section,
+    //     items: section.items.filter(
+    //       (item) => !idsToDelete.includes(Number(item.item_id))
+    //     ),
+    //   }));
+    //   //dlt pchi sec clear kre
+    //   state.selectedRows = [];
+    // },
     deleteSelectedRows: (state, action) => {
-      // dlt mate row
       const rowsToDelete = action.payload || state.selectedRows;
-      const idsToDelete = rowsToDelete.map((id: any) =>
-        typeof id === "string" ? parseInt(id, 10) : Number(id)
-      );
-      //section row ne taget kre
+      const idsToDelete = rowsToDelete.map((id: any) => id.toString());
+
       state.groupedItems = state.groupedItems.map((section) => ({
         ...section,
         items: section.items.filter(
-          (item) => !idsToDelete.includes(Number(item.item_id))
+          (item) => !idsToDelete.includes(item.item_id.toString())
         ),
       }));
-      //dlt pchi sec clear kre
+
       state.selectedRows = [];
     },
+
     updateSectionName: (state, action) => {
       const { sectionId, newName } = action.payload;
       const section = state.groupedItems.find(
@@ -304,7 +333,7 @@ export const dataSlice = createSlice({
         (s) => s.section_id === section_id
       );
       if (section) {
-        updatedItems.forEach((updatedItem:any) => {
+        updatedItems.forEach((updatedItem: any) => {
           const index = section.items.findIndex(
             (item) => item.item_id === updatedItem.item_id
           );

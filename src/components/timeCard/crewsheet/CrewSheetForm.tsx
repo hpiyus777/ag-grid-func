@@ -132,7 +132,6 @@ const CrewSheetForm: React.FC = () => {
 
     addCrewSheet(crewSheet);
     alert("Crew sheet saved successfully!");
-    console.log("Saving Crew Sheet:", crewSheet);
 
     const existingSheets = JSON.parse(
       localStorage.getItem("crewSheets") || "[]"
