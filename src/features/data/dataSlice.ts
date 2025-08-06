@@ -128,22 +128,6 @@ export const dataSlice = createSlice({
     setSelectedRows: (state, action) => {
       state.selectedRows = action.payload;
     },
-    // deleteSelectedRows: (state, action) => {
-    //   // dlt mate row
-    //   const rowsToDelete = action.payload || state.selectedRows;
-    //   const idsToDelete = rowsToDelete.map((id: any) =>
-    //     typeof id === "string" ? parseInt(id, 10) : Number(id)
-    //   );
-    //   //section row ne taget kre
-    //   state.groupedItems = state.groupedItems.map((section) => ({
-    //     ...section,
-    //     items: section.items.filter(
-    //       (item) => !idsToDelete.includes(Number(item.item_id))
-    //     ),
-    //   }));
-    //   //dlt pchi sec clear kre
-    //   state.selectedRows = [];
-    // },
     deleteSelectedRows: (state, action) => {
       const rowsToDelete = action.payload || state.selectedRows;
       const idsToDelete = rowsToDelete.map((id: any) => id.toString());

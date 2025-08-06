@@ -1,5 +1,4 @@
 import React from "react";
-import { RefreshCw } from "lucide-react";
 import { statusConfig } from "./statusConfig";
 
 interface ProgressBarProps {
