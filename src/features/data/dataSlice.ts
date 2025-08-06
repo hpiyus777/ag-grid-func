@@ -82,7 +82,7 @@ export const dataSlice = createSlice({
       state.visibleCount = Math.min(action.payload, maxCount);
     },
     moveItemBetweenSections: (state, action) => {
-      const { items, fromSectionId, toSectionId } = action.payload;
+      const { items, fromSectionId, toSectionId, targetIndex } = action.payload;
 
       const fromSection = state.groupedItems.find(
         (s) => s.section_id.toString() === fromSectionId
@@ -92,15 +92,28 @@ export const dataSlice = createSlice({
       );
 
       if (fromSection && toSection) {
+        // Extract item IDs to remove
+        const itemIds = items.map((item: any) => item.item_id);
+
+        // Remove items from source section
         fromSection.items = fromSection.items.filter(
-          (item) =>
-            !items.some(
-              (movedItem: { item_id: number }) =>
-                movedItem.item_id === item.item_id
-            )
+          (item) => !itemIds.includes(item.item_id)
         );
 
-        toSection.items = [...toSection.items, ...items];
+        // Update items with new section info
+        const updatedItems = items.map((item: any) => ({
+          ...item,
+          section_id: toSectionId,
+          section_name: toSection.section_name,
+        }));
+
+        // Insert at specific index
+        if (targetIndex !== undefined && targetIndex >= 0) {
+          toSection.items.splice(targetIndex, 0, ...updatedItems);
+        } else {
+          // Fallback: add at end
+          toSection.items.push(...updatedItems);
+        }
       }
     },
     setGroupedSections: (state, action) => {

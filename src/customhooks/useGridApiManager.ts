@@ -5,52 +5,55 @@ import { moveItemBetweenSections } from "../features/data/dataSlice";
 
 export const useGridApiManager = (groupedItems: any) => {
   const dispatch = useDispatch();
-  const gridRefs = useRef<{ [key: string]: GridApi }>({}); //bdha sec na obj ,key store kre sec id wise
+  const gridRefs = useRef<{ [key: string]: GridApi }>({});
 
   const addDropZone = (
-    //Importatnat: cross DND mate dropjone banavel che
-    fromApi: GridApi, //aaythi row lese
-    toApi: GridApi, //aaya mukse
+    fromApi: GridApi,
+    toApi: GridApi,
     fromSectionId: string,
     toSectionId: string
   ) => {
     const dropZoneParams = toApi.getRowDropZoneParams({
       onDragStop: (params: any) => {
-        const movedData = params.nodes.map((node: any) => ({
-          //jysre row drop krvama aavse to e params.nodes ma mlse node no data copy krvama aave che and ketlik field upate krvama aave che
-          ...node.data, //pelano data rakhe
+        const draggedNodes = params.nodes;
+        const overIndex = params.overIndex;
+
+        // Dragged items ka data
+        const movedData = draggedNodes.map((node: any) => ({
+          ...node.data,
           section_id: toSectionId,
-          section_name: groupedItems.find((s: any) => s.section_id.toString())
-            ?.section_name,
+          section_name: groupedItems.find(
+            (s: any) => s.section_id.toString() === toSectionId
+          )?.section_name,
         }));
 
+        // Redux action with index
         dispatch(
           moveItemBetweenSections({
-            items: movedData, //jy row ne move kri hse
-            fromSectionId, //jyathi upadi hse
-            toSectionId, //jya add kri
+            items: movedData,
+            fromSectionId,
+            toSectionId,
+            targetIndex: overIndex >= 0 ? overIndex : 0,
           })
         );
       },
     });
 
     if (dropZoneParams) {
-      //agar  valid value hse to
-      fromApi.addRowDropZone(dropZoneParams); //drop add krse
+      fromApi.addRowDropZone(dropZoneParams);
     }
   };
 
   const onGridReady = (params: any, sectionId: string) => {
-    //section is wise grid api ne store kre
     gridRefs.current[sectionId] = params.api;
 
     Object.entries(gridRefs.current).forEach(([otherSectionId, otherApi]) => {
       if (otherSectionId !== sectionId) {
-        addDropZone(params.api, otherApi, sectionId, otherSectionId); //crnt grid paramsapi biji gird other api mate dropzone set kre
-        addDropZone(otherApi, params.api, otherSectionId, sectionId); //biji gird other api peli grid paramsapi  mate dropzone set kre
+        addDropZone(params.api, otherApi, sectionId, otherSectionId);
+        addDropZone(otherApi, params.api, otherSectionId, sectionId);
       }
     });
-  }; //new je column hoy ene autofit kre table ma and cross dnd dropzone new mate pn kre+
+  };
 
   return { gridRefs, onGridReady };
 };
