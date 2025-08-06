@@ -142,9 +142,6 @@ const EstimatesDashboard: React.FC = () => {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <Filter className="w-5 h-5" />
-              </button>
             </div>
           </div>
 
