@@ -17,7 +17,6 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ stats }) => {
         <h2 className="text-lg font-medium text-gray-900">
           Estimates Progress Overview
         </h2>
-        <RefreshCw className="w-5 h-5 text-gray-400" />
       </div>
       <div className="space-y-3">
         {stats.map(({ status, count, percentage }) => {
